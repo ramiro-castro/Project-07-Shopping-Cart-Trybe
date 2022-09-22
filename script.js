@@ -9,9 +9,11 @@
  * @param {string} imageSource - URL da imagem.
  * @returns {Element} Elemento de imagem do produto.
  */
-
+// const fetch = require('node-fetch');
+// import { fetchItem } from './helpers/fetchItem';
 // import { fetchProducts } from './helpers/fetchProducts';
-const poeNoCarrinho = document.getElementsByClassName('cart__items')[0]; // tag do tipo <ol>
+
+const listaNoCarrinho = document.querySelector('.cart__items'); // tag do tipo <ol> // usei querySelecctor pois facilita trabalhar com forEach
 
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
@@ -87,22 +89,23 @@ const callCreateProductItemElement = async () => {
  * @param {string} product.price - Preço do produto.
  * @returns {Element} Elemento de um item do carrinho.
  */
-function cartItemClickListener(li) {
-//   const liDoProduto = li.parentElement.firstChild.innerText;
-//   alert(liDoProduto);
-alert(li);
-}
+// function cartItemClickListener(li) {
+// //   const liDoProduto = li.parentElement.firstChild.innerText;
+// //   alert(liDoProduto);
+// alert(li);
+// }
 
 const createCartItemElement = ({ id, title, price }) => {
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  // li.addEventListener('click', cartItemClickListener(li));
+  // li.addEventListener('click', cartRemoveItem(li));
   return li;
 };
 
 function callCreateCartItemElement() {
  const botoesAddCart = document.querySelectorAll('.item__add');
+ // alert(botoesAddCart);
 // vou pegar todos os botoes add ao carrinho e mapea-los com forEach
   botoesAddCart.forEach((botao) => {
    botao.addEventListener('click', async () => {
@@ -110,12 +113,24 @@ function callCreateCartItemElement() {
     // alert(id);
     const dadosDoProduto = await fetchItem(idDoProduto);
     // alert(fetchItemProduto);
-    poeNoCarrinho.appendChild(createCartItemElement(dadosDoProduto));
+    listaNoCarrinho.appendChild(createCartItemElement(dadosDoProduto));
    });
   });
 }
 
+const cartRemoveItem = async () => {
+  // https://codepen.io/devcapu-the-looper/pen/NWPOjmp?editors=1010
+  listaNoCarrinho.addEventListener('click', function (e) {
+    // e.target é o elemento (li) clicado
+    if (e.target && e.target.classList.contains('cart__item')) {
+        alert(e.target.textContent); // Mostra o texto da li clicada
+      this.removeChild(e.target); // Apaga o filho
+    }
+  }, false);
+};
+
 window.onload = async () => { 
   await callCreateProductItemElement();
   callCreateCartItemElement();
+  await cartRemoveItem();
 };
