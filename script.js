@@ -134,26 +134,30 @@ const cartRemoveItem = async () => {
   listaNoCarrinho.addEventListener('click', function (e) {
     // e.target é o elemento (li) clicado
     if (e.target && e.target.classList.contains('cart__item')) {
-        alert(e.target.textContent); // Mostra o texto da li clicada
+        // alert(e.target.textContent); // Mostra o texto da li clicada
       this.removeChild(e.target); // Apaga o filho
       saveCartItems(listaNoCarrinho.innerHTML);
     }
   }, false);
-  
-  // alert(itensNoCarrinho.length);
-//   itensNoCarrinho.forEach((itemLi) => {
-//   itemLi.addEventListener('click', (e) => { // https://pt.stackoverflow.com/questions/4605/remover-elemento-da-p%C3%A1gina-com-javascript
-//     alert(e);
-//     itemLi.removeChild(itemLi);
-//     // itemLi.remove();
-    
-//    });
-//   });
+};
+const botaoRemover = document.querySelector('.empty-cart'); 
+const cartRemoveTudo = async () => {
+// https://codepen.io/devcapu-the-looper/pen/NWPOjmp?editors=1010
+  botaoRemover.addEventListener('click', function (e) {
+// e.target é o elemento (li) clicado
+   if (e.target && e.target.classList.contains('empty-cart')) {
+// alert(e.target.textContent); // Mostra o texto da li clicada
+     listaNoCarrinho.innerHTML = '';
+     saveCartItems(listaNoCarrinho.innerHTML);
+     document.location.reload(true);
+   }
+  }, false);
 };
 
 window.onload = async () => { 
   await callCreateProductItemElement();
   callCreateCartItemElement();
-   await cartRemoveItem();
+  await cartRemoveItem();
   carregaCarrinhoDaMemoria();
+  await cartRemoveTudo();
 };
