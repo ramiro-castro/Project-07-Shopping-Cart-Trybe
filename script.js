@@ -13,7 +13,8 @@
 // import { fetchItem } from './helpers/fetchItem';
 // import { fetchProducts } from './helpers/fetchProducts';
 
-const listaNoCarrinho = document.querySelector('.cart__items'); // tag do tipo <ol> // usei querySelecctor pois facilita trabalhar com forEach
+const listaNoCarrinho = document.querySelector('ol.cart__items'); // tag do tipo <ol> // usei querySelecctor pois facilita trabalhar com forEach
+// const recoveryDataCart = JSON.parse(getSavedCartItems('cartItems')); // https://www.horadecodar.com.br/2020/07/21/como-salvar-um-objeto-na-localstorage/
 
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
@@ -120,6 +121,14 @@ function callCreateCartItemElement() {
   });
 }
 
+const carregaCarrinhoDaMemoria = () => {
+   // https://www.horadecodar.com.br/2020/07/21/como-salvar-um-objeto-na-localstorage/
+  const recoveryDataCart = getSavedCartItems('cartItems');
+  // alert(recoveryDataCart);
+  listaNoCarrinho.innerHTML = JSON.parse(recoveryDataCart);
+  // alert(listaNoCarrinho);
+};
+
 const cartRemoveItem = async () => {
   // https://codepen.io/devcapu-the-looper/pen/NWPOjmp?editors=1010
   listaNoCarrinho.addEventListener('click', function (e) {
@@ -127,8 +136,10 @@ const cartRemoveItem = async () => {
     if (e.target && e.target.classList.contains('cart__item')) {
         alert(e.target.textContent); // Mostra o texto da li clicada
       this.removeChild(e.target); // Apaga o filho
+      saveCartItems(listaNoCarrinho.innerHTML);
     }
   }, false);
+  
   // alert(itensNoCarrinho.length);
 //   itensNoCarrinho.forEach((itemLi) => {
 //   itemLi.addEventListener('click', (e) => { // https://pt.stackoverflow.com/questions/4605/remover-elemento-da-p%C3%A1gina-com-javascript
@@ -144,4 +155,5 @@ window.onload = async () => {
   await callCreateProductItemElement();
   callCreateCartItemElement();
    await cartRemoveItem();
+  carregaCarrinhoDaMemoria();
 };
