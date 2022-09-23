@@ -106,7 +106,7 @@ const createCartItemElement = ({ id, title, price }) => {
 function callCreateCartItemElement() {
  const botoesAddCart = document.querySelectorAll('.item__add');
  // alert(botoesAddCart);
-// vou pegar todos os botoes add ao carrinho e mapea-los com forEach
+ // vou pegar todos os botoes add ao carrinho e mapea-los com forEach
   botoesAddCart.forEach((botao) => {
    botao.addEventListener('click', async () => {
     const idDoProduto = botao.parentElement.firstChild.innerText;
@@ -114,7 +114,9 @@ function callCreateCartItemElement() {
     const dadosDoProduto = await fetchItem(idDoProduto);
     // alert(fetchItemProduto);
     listaNoCarrinho.appendChild(createCartItemElement(dadosDoProduto));
-   });
+    // alert(listaNoCarrinho);
+    saveCartItems(listaNoCarrinho.innerHTML);
+    });
   });
 }
 
@@ -127,10 +129,19 @@ const cartRemoveItem = async () => {
       this.removeChild(e.target); // Apaga o filho
     }
   }, false);
+  // alert(itensNoCarrinho.length);
+//   itensNoCarrinho.forEach((itemLi) => {
+//   itemLi.addEventListener('click', (e) => { // https://pt.stackoverflow.com/questions/4605/remover-elemento-da-p%C3%A1gina-com-javascript
+//     alert(e);
+//     itemLi.removeChild(itemLi);
+//     // itemLi.remove();
+    
+//    });
+//   });
 };
 
 window.onload = async () => { 
   await callCreateProductItemElement();
   callCreateCartItemElement();
-  await cartRemoveItem();
+   await cartRemoveItem();
 };
