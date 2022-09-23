@@ -10,6 +10,3 @@ if (typeof module !== 'undefined') {
 // if (typeof window !== 'undefined') {
 //     localStorage.setItem('myCat', 'Tom');
 // }
-// const checkout = typeof window !== 'undefined' ? localStorage.getItem('checkout') : null
-
-// console.log(checkout);
