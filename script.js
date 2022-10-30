@@ -1,6 +1,8 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
 // experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
 
+// const { loanding } = require('./helpers/loading');
+
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
 /**
@@ -13,7 +15,9 @@
 // import { fetchItem } from './helpers/fetchItem';
 // import { fetchProducts } from './helpers/fetchProducts';
 
-const listaNoCarrinho = document.querySelector('ol.cart__items'); // tag do tipo <ol> // usei querySelecctor pois facilita trabalhar com forEach
+const listaNoCarrinho = document.querySelector('ol.cart__items'); 
+
+// tag do tipo <ol> // usei querySelecctor pois facilita trabalhar com forEach
 // const recoveryDataCart = JSON.parse(getSavedCartItems('cartItems')); // https://www.horadecodar.com.br/2020/07/21/como-salvar-um-objeto-na-localstorage/
 
 const createProductImageElement = (imageSource) => {
@@ -21,6 +25,22 @@ const createProductImageElement = (imageSource) => {
   img.className = 'item__image';
   img.src = imageSource;
   return img;
+};
+
+const loanding = (flag) => {
+  const itensShop = document.querySelector('section.items');
+  if (flag) { 
+    const h2 = document.createElement('h2');
+    h2.className = 'loading';
+    h2.innerText = 'Carregando...';
+    itensShop.appendChild(h2); 
+  } 
+  if (!flag) {
+    // console.log('entrei no else');
+    const h2 = document.querySelector('h2.loading');
+    console.log('entrei no else loading');
+    h2.remove();
+  }
 };
 
 /**
@@ -58,10 +78,11 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
 };
 
 const callCreateProductItemElement = async () => {
-  const object = await fetchProducts('computador');
+  const object = await fetchProducts('commputador');
   const arrayComputers = object.results;
   const addItemSection = document.getElementsByClassName('items');
   // alert(addItemSection);
+  // loanding(false);
   arrayComputers.forEach((computer) => {
    const { id, title, thumbnail } = computer;
    const createItem = createProductItemElement({ id, title, thumbnail });
@@ -90,17 +111,53 @@ const callCreateProductItemElement = async () => {
  * @param {string} product.price - Preço do produto.
  * @returns {Element} Elemento de um item do carrinho.
  */
-// function cartItemClickListener(li) {
-// //   const liDoProduto = li.parentElement.firstChild.innerText;
-// //   alert(liDoProduto);
-// alert(li);
-// }
+
+// cart price inicia
+let sumPrice = 0;
+const priceInCart = document.querySelector('section.cart');
+const p = document.createElement('p');
+p.className = 'total-price';
+p.innerText = `Preço Total = $${sumPrice}`;// o $ (cifrao) é necessário para que idexOf encontre o preço em buscaPreco()
+priceInCart.appendChild(p);
+const updatePrice = document.querySelector('p.total-price');
+
+const totalPrice = (price, sum) => {
+  if (sum) {
+   sumPrice += price;
+  } else {
+   console.log(sumPrice);
+   sumPrice -= price;
+  } 
+  updatePrice.innerHTML = `Preço Total = $${sumPrice}`;
+  localStorage.setItem('priceItems', JSON.stringify(updatePrice.innerHTML));
+};
+
+const buscaPreco = (itemCarrinho, localStorage) => {
+  console.log(itemCarrinho);
+  if (itemCarrinho === null) { return 0; }
+  if (!localStorage) { 
+    string = itemCarrinho.innerHTML; 
+  } else {
+    string = itemCarrinho;
+  }
+  // console.log('stringBuscaPreco');
+  // console.log(string);
+  posicaoPrice = string.indexOf('$') + 1;
+  let priceElement = [];
+  for (let index = posicaoPrice; index < string.length; index += 1) {
+    priceElement.push(string[index]);
+  }
+  priceElement = priceElement.join('');
+  return parseFloat(priceElement);
+};
 
 const createCartItemElement = ({ id, title, price }) => {
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
   // li.addEventListener('click', cartRemoveItem(li));
+  console.log('entrei em createCart');
+  console.log(li);
   return li;
 };
 
@@ -112,10 +169,15 @@ function callCreateCartItemElement() {
    botao.addEventListener('click', async () => {
     const idDoProduto = botao.parentElement.firstChild.innerText;
     // alert(id);
+    console.log(idDoProduto);
     const dadosDoProduto = await fetchItem(idDoProduto);
+    console.log(typeof (dadosDoProduto.price));
+    totalPrice(dadosDoProduto.price, true);
     // alert(fetchItemProduto);
-    listaNoCarrinho.appendChild(createCartItemElement(dadosDoProduto));
+    // createCartItemElement(dadosDoProduto);
+    listaNoCarrinho.appendChild(createCartItemElement(dadosDoProduto));// gera itemCart no html
     // alert(listaNoCarrinho);
+    console.log(listaNoCarrinho.innerHTML);
     saveCartItems(listaNoCarrinho.innerHTML);
     });
   });
@@ -124,9 +186,16 @@ function callCreateCartItemElement() {
 const carregaCarrinhoDaMemoria = () => {
    // https://www.horadecodar.com.br/2020/07/21/como-salvar-um-objeto-na-localstorage/
   const recoveryDataCart = getSavedCartItems('cartItems');
-  // alert(recoveryDataCart);
+  const recoveryPriceCart = localStorage.getItem('priceItems');
+  console.log('testa carregamento do carrinho');
+  console.log(JSON.parse(recoveryDataCart));
+  console.log(JSON.parse(recoveryPriceCart));
   listaNoCarrinho.innerHTML = JSON.parse(recoveryDataCart);
-  // alert(listaNoCarrinho);
+  updatePrice.innerHTML = JSON.parse(recoveryPriceCart);
+  
+  sumPrice = buscaPreco(JSON.parse(recoveryPriceCart), true);
+  console.log('SumPrice Recovery');
+  console.log(sumPrice);
 };
 
 const cartRemoveItem = async () => {
@@ -134,7 +203,10 @@ const cartRemoveItem = async () => {
   listaNoCarrinho.addEventListener('click', function (e) {
     // e.target é o elemento (li) clicado
     if (e.target && e.target.classList.contains('cart__item')) {
-        // alert(e.target.textContent); // Mostra o texto da li clicada
+      const priceSub = buscaPreco(e.target, false);
+      totalPrice(priceSub, false);
+      // console.log(typeof priceSub);
+
       this.removeChild(e.target); // Apaga o filho
       saveCartItems(listaNoCarrinho.innerHTML);
     }
@@ -149,13 +221,18 @@ const cartRemoveTudo = async () => {
 // alert(e.target.textContent); // Mostra o texto da li clicada
      listaNoCarrinho.innerHTML = '';
      saveCartItems(listaNoCarrinho.innerHTML);
-     document.location.reload(true);
+     sumPrice = 0;
+     updatePrice.innerHTML = `Preço Total = $${sumPrice}`;
+     localStorage.setItem('priceItems', JSON.stringify(updatePrice.innerHTML));
+     // document.location.reload(true);
    }
   }, false);
 };
 
 window.onload = async () => { 
+  loanding(true);
   await callCreateProductItemElement();
+  loanding(false);
   callCreateCartItemElement();
   await cartRemoveItem();
   carregaCarrinhoDaMemoria();
